@@ -1,8 +1,5 @@
-# Howitzer::Video::Rec
+# howtizer-video-rec
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/howitzer/video/rec`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
@@ -22,14 +19,51 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Cucumber
+Add to env.rb:
 
-## Development
+`require 'howitzer/video_record'`
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Add to your hooks.rb:
+```ruby
+  Before do |scenario|
+    Howitzer::VideoRecord.start_recording
+  end
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-## Contributing
+  After do |scenario|
+    Howitzer::VideoRecord.stop_and_save(scenario.name)
+  end
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/howitzer-video-rec.
+### RSpec
+
+  Add to your spec_helper.rb:
+   ```ruby
+  require 'howitzer/video_record' 
+   
+  config.before(:example) do
+    Howitzer::VideoRecord.start_recording
+  end
+
+  config.after(:example) do
+    scenario_name =
+        if RSpec.current_example.description.blank?
+          RSpec.current_example.metadata[:full_description]
+        else
+          RSpec.current_example.description
+        end
+    Howitzer::VideoRecord.stop_and_save(scenario_name)
+  end
+   ```
+### Turnip
+    Same as rspec.
+    
+#### Info:
+Currently it creates video directory under your project root with sub-directories for each run.
+You can customize name of the final files passing argument to stop_and_save method.
+Also some ENV variables are supported:
+- VIDEO_DIR - video directory path relative to the root of the project
+- DISPLAY - display port for xvfb
+
+
