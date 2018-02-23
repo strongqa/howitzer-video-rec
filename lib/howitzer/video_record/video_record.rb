@@ -10,8 +10,9 @@ module Howitzer
       display: ENV['DISPLAY'].to_i.zero? ? 99 : ENV['DISPLAY']
     }.freeze
 
-    def self.start_recording
-      @headless = Headless.new(display: DEFAULT_CONFIG[:display])
+    def self.start_recording(*args)
+      args.first.merge(display: DEFAULT_CONFIG[:display])
+      @headless = Headless.new(*args)
       @headless.start
       @headless.video.start_capture
     end
@@ -20,6 +21,10 @@ module Howitzer
       dir_path = "./#{DEFAULT_CONFIG[:video_dir]}/#{DEFAULT_CONFIG[:nested_dir]}"
       FileUtils.mkdir_p dir_path
       @headless.video.stop_and_save("#{dir_path}/#{name}_#{DEFAULT_CONFIG[:video_postfix]}.mov")
+    end
+
+    def self.destroy_virtual_display
+      @headless.destroy
     end
   end
 end
